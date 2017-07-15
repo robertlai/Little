@@ -11,10 +11,12 @@ function isAdmin(userId) {
 
 function addAdmin(userId) {
   data.admin[userId] = true
+  data.writeData()
 }
 
 function removeAdmin(userId) {
   delete data.admin[userId]
+  data.writeData()
 }
 
 module.exports = {

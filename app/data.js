@@ -4,6 +4,12 @@ import logger from './logger'
 const DATA_FILE_NAME = 'data.json'
 const BACKUP_DIR = 'backup/'
 
+export const SCOPE_MAP = {
+  user: 'author',
+  channel: 'channel',
+  server: 'guild'
+}
+
 var writeLock = 0
 
 const data = {
@@ -14,25 +20,104 @@ const data = {
   channelCommands: {},
   serverCommands: {},
   globalCommands: {},
-  commandNameScopes: {},
+  commandNameProps: {},
 
   addCommand(props) {
-    this.commandNameScopes[props.name] = {
+    if (this.commandNameProps[props.name]) {
+      throw 'Command already exists.'
+    }
+    this.commandNameProps[props.name] = {
+      matchType: props.matchType,
       scope: props.scope,
       scopeId: props.scopeId
     }
     if (!this[`${props.scope}Commands`][props.scopeId]) {
       this[`${props.scope}Commands`][props.scopeId] = {
-        string: {},
-        regex: []
+        regex: {},
+        string: {}
       }
     }
     if (props.matchType === 'regex') {
-      this[`${props.scope}Commands`][props.scopeId].regex.push(props)
+      this[`${props.scope}Commands`][props.scopeId].regex[props.name] = props
     } else {
       this[`${props.scope}Commands`][props.scopeId].string[props.input] = props
     }
     this.writeData()
+  },
+
+  removeCommand(name) {
+    const props = this.commandNameProps[name]
+    if (!props) throw 'Command does not exist.'
+    if (props.matchType === 'regex') {
+      delete this[`${props.scope}Commands`][props.scopeId].regex[props.name]
+    } else {
+      const key = Object.values(this[`${props.scope}Commands`][props.scopeId].string).find(
+        command => command.name === name
+      ).input
+      delete this[`${props.scope}Commands`][props.scopeId].string[key]
+    }
+    delete this.commandNameProps[name]
+    this.writeData()
+  },
+
+  updateCommand(name, output) {
+    const props = this.commandNameProps[name]
+    if (!props) throw 'Command does not exist.'
+    if (props.matchType === 'regex') {
+      this[`${props.scope}Commands`][props.scopeId].regex[props.name].output = output
+    } else {
+      const key = Object.values(this[`${props.scope}Commands`][props.scopeId].string).find(
+        command => command.name === name
+      ).input
+      this[`${props.scope}Commands`][props.scopeId].string[key].output = output
+    }
+    this.writeData()
+    return true
+  },
+
+  matchCommands(message) {
+    const commands = []
+
+    Object.keys(SCOPE_MAP).forEach(scope => {
+      const commandSet = this[`${scope}Commands`][message[SCOPE_MAP[scope]].id]
+      if (commandSet) {
+        if (commandSet.string[message.content]) {
+          commands.push(commandSet.string[message.content])
+        }
+        Object.values(commandSet.regex).forEach(command => {
+          if (new RegExp(command.input, command.flags).test(message.content)) {
+            commands.push(command)
+          }
+        })
+      }
+    })
+
+    const globalCommandSet = this.globalCommands.all
+    if (globalCommandSet) {
+      if (globalCommandSet.string[message.content]) {
+        commands.push(globalCommandSet.string[message.content])
+      }
+      Object.values(globalCommandSet.regex).forEach(command => {
+        if (new RegExp(command.input, command.flags).test(message.content)) {
+          commands.push(command)
+        }
+      })
+    }
+
+    return commands
+  },
+
+  fetchCommand(name) {
+    const props = this.commandNameProps[name]
+    if (!props) throw 'Command does not exist.'
+    if (props.matchType === 'regex') {
+      return this[`${props.scope}Commands`][props.scopeId].regex[name]
+    } else {
+      const key = Object.values(this[`${props.scope}Commands`][props.scopeId].string).find(
+        command => command.name === name
+      ).input
+      return this[`${props.scope}Commands`][props.scopeId].string[key]
+    }
   },
 
   get(path) {
@@ -65,9 +150,9 @@ const data = {
       } else {
         try {
           const fileData = JSON.parse(fileContent)
-          Object.apply(this, fileData)
+          Object.assign(this, fileData)
           logger.log('Successfully loaded data.')
-          data.writeBackup()
+          this.writeBackup()
         } catch (err) {
           logger.log('Failed to parse data file.')
           logger.error(err)

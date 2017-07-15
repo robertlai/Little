@@ -1,7 +1,6 @@
-import { client } from '../little'
 import roles from '../roles'
+import data, { SCOPE_MAP } from '../data'
 import logger from '../logger'
-import data from '../data'
 
 const flagRegex = /^(-[^\s]+)/
 const argRegex = /^(?:"((?:[^"]|\")+)"|([^\s]+))/
@@ -79,6 +78,7 @@ function addCommand(message) {
   logger.log('Added command.')
   logger.block([
     `Added by: ${message.author.tag}(${message.author.id})`,
+    `Time: ${new Date()}`,
     `Name: ${props.name}`,
     `Scope: ${props.scope}`,
     `Scope ID: ${props.scopeId}`,
@@ -86,6 +86,63 @@ function addCommand(message) {
     `Input: ${props.input}`,
     `Output: ${props.output}`
   ])
+  message.channel.send('lol ok')
+}
+
+function removeCommand(message) {
+  const input = message.content.slice('lol remove '.length).trim()
+  const argResult = input.match(argRegex)
+  const name = argResult[1] || input
+  logger.log('Removing command...')
+  data.removeCommand(name)
+  logger.log('Removed command.')
+  logger.block([
+    `Removed by: ${message.author.tag}(${message.author.id})`,
+    `Time: ${new Date()}`,
+    `Name: ${name}`
+  ])
+  message.channel.send('lol ok')
+}
+
+function updateCommand(message) {
+  let input = message.content.slice('lol update '.length).trim()
+  const nameArgResult = input.match(argRegex)
+  const name = nameArgResult[1] || nameArgResult[2]
+  input = input.slice(name.length).trim()
+  const outputArgResult = input.match(argRegex)
+  const output = outputArgResult[1] || input
+  logger.log('Updating command...')
+  data.updateCommand(name, output)
+  logger.log('Updated command.')
+  logger.block([
+    `Updated by: ${message.author.tag}(${message.author.id})`,
+    `Time: ${new Date()}`,
+    `Name: ${name}`,
+    `Output: ${output}`
+  ])
+  message.channel.send('lol ok')
+}
+
+function findCommand(message) {
+  message.content = message.content.slice('lol find '.length).trim()
+  const commands = data.matchCommands(message)
+  if (!commands.length) throw 'No matching commands found.'
+  let response = '**Matching commands:**```json\n'
+  response += commands.reduce((acc, cur) => `${acc}\n${cur.name}`, '')
+  response += '```'
+  message.channel.send(response).then(() => {
+    logger.log('Sent matching commands list.')
+  })
+}
+
+function printCommand(message) {
+  const input = message.content.slice('lol print '.length).trim()
+  const argResult = input.match(argRegex)
+  const name = argResult[1] || input
+  const command = data.fetchCommand(name)
+  message.channel.send(`\`\`\`json\n${JSON.stringify(command, undefined, '\t')}\`\`\``).then(() => {
+    logger.log('Sent command JSON.')
+  })
 }
 
 function applyFlag(commandProps, flag, input) {
@@ -148,12 +205,6 @@ function applyFlag(commandProps, flag, input) {
   }
 
   return input
-}
-
-const SCOPE_MAP = {
-  user: 'author',
-  channel: 'channel',
-  server: 'guild'
 }
 
 function resolveScopeId(commandProps, message) {

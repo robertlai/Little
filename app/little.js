@@ -14,6 +14,11 @@ client.on('ready', () => {
   ])
   data.loadData(() => {
     logger.log('Little is ready.')
+    if (data.game) {
+      client.user.setPresence({
+        game: { name: data.game }
+      })
+    }
   })
 })
 

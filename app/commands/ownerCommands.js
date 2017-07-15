@@ -1,16 +1,23 @@
 import { client } from '../little'
+import config from '../../config.conf'
+import data from '../data'
 import roles from '../roles'
 import logger from '../logger'
-import data from '../data'
 
 const PERMISSIONS = 67558464 // 0x0406DC40
 
 export default function ownerCommands(message) {
   let handler = null
 
-  if (/^lol playing /.test(message.content)) {
-    logger.log('Received "playing" command.')
+  if (/^lol restart$/.test(message.content)) {
+    logger.log('Received "restart" command.')
+    handler = restart
+  } else if (/^lol play /.test(message.content)) {
+    logger.log('Received "play" command.')
     handler = setGame
+  } else if (/^lol stop playing$/.test(message.content)) {
+    logger.log('Received "stop playing" command.')
+    handler = resetGame
   } else if (/^lol listen /.test(message.content)) {
     logger.log('Received "listen" command.')
     handler = addAdmin
@@ -48,13 +55,22 @@ export default function ownerCommands(message) {
   }
 }
 
+function restart() {
+  logger.log('Restarting...')
+  client.destroy().then(() =>
+    client.login(config.token)
+  )
+}
+
 function setGame(message) {
-  const result = message.content.match(/^lol playing (.+)$/)
-  const game = result && result[1]
+  const game = message.content.slice('lol play '.length).trim()
   if (!game) {
     throw 'No game found.'
   }
+
   data.game = game
+  data.writeData()
+
   client.user.setPresence({
     game: { name: game }
   }).then(user => {
@@ -64,6 +80,18 @@ function setGame(message) {
     ])
     message.channel.send('lol ok')
   })
+}
+
+function resetGame(message) {
+  data.game = null
+  data.writeData()
+
+  client.user.setPresence({
+    game: null
+  }).then(() => {
+    logger.log('Game has been reset.')
+  })
+  message.channel.send('lol ok')
 }
 
 function addAdmin(message) {

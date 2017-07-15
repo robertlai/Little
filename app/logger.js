@@ -1,20 +1,20 @@
 const SEPARATOR_LENGTH = 75
 
 const logger = {
-  log: text => {
+  log(text) {
     console.log(`> ${text}`)
   },
-  error: err => {
-    logger.block([`Error: ${err.message || err}`])
+  error(err) {
+    this.block([`Error: ${err.message || err}`])
   },
-  block: arr => {
-    logger.separator()
+  block(arr) {
+    this.separator()
     arr.forEach(text => {
       console.log(text)
     })
-    logger.separator()
+    this.separator()
   },
-  separator: () => {
+  separator() {
     console.log(Array(SEPARATOR_LENGTH + 1).join('='))
   }
 }
