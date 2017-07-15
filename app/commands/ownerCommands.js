@@ -99,6 +99,7 @@ function addAdmin(message) {
   userIds.forEach(userId => {
     data.admin[userId] = true
   })
+  data.writeData()
   logger.log('Added admin users.')
   logger.block([
     'Users:',
@@ -114,6 +115,7 @@ function removeAdmin(message) {
   userIds.forEach(userId => {
     delete data.admin[userId]
   })
+  data.writeData()
   logger.log('Removed admin users.')
   logger.block([
     'Users:',
@@ -146,6 +148,7 @@ function addIgnored(message) {
   userIds.forEach(userId => {
     data.ignored[userId] = true
   })
+  data.writeData()
   logger.log('Added ignored users.')
   logger.block([
     'Users:',
@@ -161,6 +164,7 @@ function removeIgnored(message) {
   userIds.forEach(userId => {
     delete data.ignored[userId]
   })
+  data.writeData()
   logger.log('Removed ignored users.')
   logger.block([
     'Users:',
