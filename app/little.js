@@ -1,5 +1,6 @@
 import Discord from 'discord.js'
 import config from '../config.conf'
+import data from './data'
 import logger from './logger'
 import messageHandler from './messageHandler'
 
@@ -11,7 +12,9 @@ client.on('ready', () => {
     `User: ${client.user.tag}(${client.user.id})`,
     `Time: ${new Date()}`
   ])
-  logger.log('Little is ready.')
+  data.loadData(() => {
+    logger.log('Little is ready.')
+  })
 })
 
 client.on('message', messageHandler)

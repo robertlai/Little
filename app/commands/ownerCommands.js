@@ -40,17 +40,21 @@ export default function ownerCommands(message) {
         throw 'User is not authorized to use this command.'
       }
       handler(message)
-    } catch (error) {
+    } catch (err) {
       logger.log('Command failed.')
-      logger.block([
-        `Error: ${error}`
-      ])
+      logger.error(err)
+      message.channel.send('lol nope')
     }
   }
 }
 
 function setGame(message) {
-  const game = message.content.match(/^lol playing (.+)$/)[1]
+  const result = message.content.match(/^lol playing (.+)$/)
+  const game = result && result[1]
+  if (!game) {
+    throw 'No game found.'
+  }
+  data.game = game
   client.user.setPresence({
     game: { name: game }
   }).then(user => {
@@ -80,7 +84,7 @@ function addAdmin(message) {
 function removeAdmin(message) {
   const userIds = getMentionedUserIds(message)
   userIds.forEach(userId => {
-    data.admin[userId] = false
+    delete data.admin[userId]
   })
   logger.log('Removed admin users.')
   logger.block([
@@ -100,9 +104,8 @@ function listAdmin(message) {
     return acc
   }, [])
   if (users.length === 0) {
-    message.channel.send('**No admin users found.**').then(() => {
-      logger.log('No admin users found.')
-    })
+    logger.log('No admin users found.')
+    message.channel.send('**No admin users found.**')
   } else {
     message.channel.send(`**Admin users:**\n${users.join('\n')}`).then(() => {
       logger.log('Sent admin user list.')
@@ -128,7 +131,7 @@ function addIgnored(message) {
 function removeIgnored(message) {
   const userIds = getMentionedUserIds(message)
   userIds.forEach(userId => {
-    data.ignored[userId] = false
+    delete data.ignored[userId]
   })
   logger.log('Removed ignored users.')
   logger.block([
@@ -148,9 +151,8 @@ function listIgnored(message) {
     return acc
   }, [])
   if (users.length === 0) {
-    message.channel.send('**No ignored users found.**').then(() => {
-      logger.log('No ignored users found.')
-    })
+    logger.log('No ignored users found.')
+    message.channel.send('**No ignored users found.**')
   } else {
     message.channel.send(`**Admin users:**\n${users.join('\n')}`).then(() => {
       logger.log('Sent ignored user list.')

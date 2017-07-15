@@ -4,6 +4,9 @@ const logger = {
   log: text => {
     console.log(`> ${text}`)
   },
+  error: err => {
+    logger.block([`Error: ${err.message || err}`])
+  },
   block: arr => {
     logger.separator()
     arr.forEach(text => {
