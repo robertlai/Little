@@ -124,8 +124,8 @@ function updateCommand(message) {
 }
 
 function findCommand(message) {
-  message.content = message.content.slice('lol find '.length).trim()
-  const commands = data.matchCommands(message)
+  const input = message.content.slice('lol find '.length).trim()
+  const commands = data.matchCommands(message, input)
   if (!commands.length) throw 'No matching commands found.'
   let response = '**Matching commands:**```json\n'
   response += commands.reduce((acc, cur) => `${acc}\n${cur.name}`, '')

@@ -75,17 +75,18 @@ const data = {
     return true
   },
 
-  matchCommands(message) {
+  matchCommands(message, inputOverride=null) {
     const commands = []
+    const input = inputOverride || message.content
 
     Object.keys(SCOPE_MAP).forEach(scope => {
       const commandSet = this[`${scope}Commands`][message[SCOPE_MAP[scope]].id]
       if (commandSet) {
-        if (commandSet.string[message.content]) {
-          commands.push(commandSet.string[message.content])
+        if (commandSet.string[input]) {
+          commands.push(commandSet.string[input])
         }
         Object.values(commandSet.regex).forEach(command => {
-          if (new RegExp(command.input, command.flags).test(message.content)) {
+          if (new RegExp(command.input, command.flags).test(input)) {
             commands.push(command)
           }
         })
