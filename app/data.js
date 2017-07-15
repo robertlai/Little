@@ -49,7 +49,7 @@ const data = {
     const props = this.commandNameProps[name]
     if (!props) throw 'Command does not exist.'
     if (props.matchType === 'regex') {
-      delete this[`${props.scope}Commands`][props.scopeId].regex[props.name]
+      delete this[`${props.scope}Commands`][props.scopeId].regex[name]
     } else {
       const key = Object.values(this[`${props.scope}Commands`][props.scopeId].string).find(
         command => command.name === name
@@ -64,7 +64,7 @@ const data = {
     const props = this.commandNameProps[name]
     if (!props) throw 'Command does not exist.'
     if (props.matchType === 'regex') {
-      this[`${props.scope}Commands`][props.scopeId].regex[props.name].output = output
+      this[`${props.scope}Commands`][props.scopeId].regex[name].output = output
     } else {
       const key = Object.values(this[`${props.scope}Commands`][props.scopeId].string).find(
         command => command.name === name
