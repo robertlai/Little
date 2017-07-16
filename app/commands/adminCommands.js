@@ -113,7 +113,7 @@ function updateCommand(message) {
   let input = message.content.slice('lol update '.length).trim()
   const nameArgResult = input.match(argRegex)
   const name = nameArgResult[1] || nameArgResult[2]
-  input = input.slice(name.length).trim()
+  input = input.replace(argRegex, '').trim()
   const outputArgResult = input.match(argRegex)
   const output = outputArgResult[1] || input
   logger.log('Updating command...')
