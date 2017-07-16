@@ -60,11 +60,11 @@ function addCommand(message) {
 
       if (!props.input) {
         props.input = argResult[1] || argResult[2]
-        input = input.replace(argResult, '')
+        input = input.replace(argRegex, '')
       } else if (!props.output) {
         if (argResult[1]) {
           props.output = argResult[1]
-          input = input.replace(argResult, '')
+          input = input.replace(argRegex, '')
         } else {
           props.output = input
           input = ''
