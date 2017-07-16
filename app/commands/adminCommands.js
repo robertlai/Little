@@ -3,7 +3,7 @@ import data, { SCOPE_MAP } from '../data'
 import logger from '../logger'
 
 const flagRegex = /^(-[^\s]+)/
-const argRegex = /^(?:"((?:[^"]|\")+)"|([^\s]+))/
+const argRegex = /^(?:"((?:[^"]|\\")+)"|([^\s]+))/
 
 const DEFAULT_COMMAND_PROPS = {
   matchType: 'string',
@@ -60,10 +60,15 @@ function addCommand(message) {
 
       if (!props.input) {
         props.input = argResult[1] || argResult[2]
-        input = input.slice(props.input.length)
+        input = input.replace(argResult, '')
       } else if (!props.output) {
-        props.output = argResult[1] || input
-        input = input.slice(props.output.length)
+        if (argResult[1]) {
+          props.output = argResult[1]
+          input = input.replace(argResult, '')
+        } else {
+          props.output = input
+          input = ''
+        }
       } else {
         throw 'Invalid command creation string.'
       }
