@@ -22,9 +22,9 @@ export default function adminCommands(message) {
   } else if (/^lol update /.test(message.content)) {
     logger.log('Received "update" command.')
     handler = updateCommand
-  } else if (/^lol find /.test(message.content)) {
-    logger.log('Received "find" command.')
-    handler = findCommand
+  } else if (/^lol match /.test(message.content)) {
+    logger.log('Received "match" command.')
+    handler = matchCommand
   } else if (/^lol print /.test(message.content)) {
     logger.log('Received "print" command.')
     handler = printCommand
@@ -123,8 +123,8 @@ function updateCommand(message) {
   message.channel.send('lol ok')
 }
 
-function findCommand(message) {
-  const input = message.content.slice('lol find '.length).trim()
+function matchCommand(message) {
+  const input = message.content.slice('lol match '.length).trim()
   const commands = data.matchCommands(message, input)
   if (!commands.length) throw 'No matching commands found.'
   let response = '**Matching commands:**```json\n'
