@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import Discord from 'discord.js'
 import config from '../config.conf'
 import data from './data'

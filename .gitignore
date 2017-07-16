@@ -1,4 +1,5 @@
 backup/
+dist/
 node_modules
 *.conf
 data.json

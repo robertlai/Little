@@ -4,12 +4,15 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "babel-node app/little.js --presets es2015,stage-3",
+    "build": "rm -rf dist && babel app --presets es2015,stage-3 -d dist",
+    "dev": "babel-node app/little.js --presets es2015,stage-3",
+    "start": "node dist/little.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "robertlai",
   "license": "MIT",
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "discord.js": "^11.1.0",
     "mongodb": "^2.2.30",
     "uws": "^0.14.5"
