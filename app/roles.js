@@ -9,6 +9,10 @@ function isAdmin(userId) {
   return isOwner(userId) || data.admin[userId]
 }
 
+function isIgnored(userId) {
+  return data.ignored[userId]
+}
+
 function addAdmin(userId) {
   data.admin[userId] = true
   data.writeData()
@@ -22,6 +26,7 @@ function removeAdmin(userId) {
 module.exports = {
   isOwner,
   isAdmin,
+  isIgnored,
   addAdmin,
   removeAdmin
 }
