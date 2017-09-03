@@ -7,6 +7,7 @@ import {
 import logger from './logger'
 
 export default function messageHandler(message) {
+  console.log(message.author.client.ping)
   if (message.author.id === client.user.id) {
     return
   }

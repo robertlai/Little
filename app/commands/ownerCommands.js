@@ -39,6 +39,12 @@ export default function ownerCommands(message) {
   } else if (/^lol invite$/.test(message.content)) {
     logger.log('Received "invite" command.')
     handler = sendInvite
+  } else if (/^lol name /.test(message.content)) {
+    logger.log('Received "name" command.')
+    handler = setUsername
+  } else if (/^lol die$/.test(message.content)) {
+    logger.log('Received "die" command.')
+    handler = die
   }
 
   if (handler) {
@@ -201,6 +207,27 @@ function sendInvite(message) {
       `Client ID: ${client.user.id}`,
       `Permissions: ${PERMISSIONS}`
     ])
+  })
+}
+
+function setUsername(message) {
+  const username = message.content.slice('lol name '.length).trim()
+  if (!username) {
+    throw 'No username found.'
+  }
+
+  client.user.setUsername(username).then(user => {
+    logger.log('Username has been set.')
+    logger.block([
+      `Username: ${user.username}`
+    ])
+    message.channel.send('lol ok')
+  })
+}
+
+function die() {
+  client.destroy().then(() => {
+    process.exit()
   })
 }
 
